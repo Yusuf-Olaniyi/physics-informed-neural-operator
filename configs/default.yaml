@@ -1,0 +1,50 @@
+# Default configuration for the beam neural-operator study.
+# Edit / copy this file per experiment (e.g. configs/cantilever.yaml) rather
+# than hard-coding values in scripts.
+
+beam:
+  length: 10.0        # [m]
+  E: 200.0e+9          # Young's modulus [Pa]
+  I: 8.0e-6            # second moment of area [m^4]
+  num_elements: 64     # FE elements -> num_nodes = num_elements + 1
+
+# A SINGLE support type for the whole experiment. BC is intentionally NOT
+# part of the neural-operator input (see README) -- to study another
+# boundary condition, copy this file, change this field, and regenerate
+# the dataset / retrain.
+# Options: CANTILEVER, SIMPLY_SUPPORTED, FIXED_FIXED, FIXED_PINNED
+support_type: SIMPLY_SUPPORTED
+
+dataset:
+  num_samples: 5000
+  amplitude_range: [5.0, 20.0]
+  seed: 0
+  train_ratio: 0.7
+  val_ratio: 0.15        # remainder (0.15) is test
+  output_dir: outputs/data
+
+model:
+  input_channels: 2      # [signal(x), x] -- no BC channel
+  output_channels: 1
+  width: 64
+  modes: 16
+  num_layers: 4
+
+training:
+  forward:
+    epochs: 500
+    lr: 1.0e-3
+    lambda_phys: 1.0e-6
+    batch_size: 32
+  inverse:
+    epochs: 500
+    lr: 1.0e-3
+    batch_size: 32
+  device: cuda            # falls back to cpu automatically if unavailable
+  checkpoint_dir: outputs/checkpoints
+
+evaluation:
+  plot_samples: 3
+  figures_dir: outputs/figures
+
+seed: 42
